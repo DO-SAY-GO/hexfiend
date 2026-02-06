@@ -46,6 +46,7 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .app{
@@ -333,18 +334,86 @@ body{
 }
 
 /* Responsive */
+@media (max-width:760px){
+  body{
+    align-items:flex-start;
+  }
+  .app{
+    max-width:100%;
+    padding: calc(144px + env(safe-area-inset-top, 0px)) 10px 12px;
+  }
+  .title{
+    top: calc(4px + env(safe-area-inset-top, 0px));
+    font-size: clamp(32px, 10vw, 50px);
+    letter-spacing:.45px;
+    width: 100%;
+    text-align:center;
+  }
+  .level{
+    top: calc(58px + env(safe-area-inset-top, 0px));
+    left: 10px;
+  }
+  .toggle{
+    top: calc(54px + env(safe-area-inset-top, 0px));
+    right: 10px;
+  }
+  .targetWrap{
+    height:58px;
+    margin:2px 0 8px;
+  }
+  .target{
+    font-size: clamp(30px, 9vw, 38px);
+  }
+  .meta{
+    margin: 0 auto 8px;
+    gap:12px;
+  }
+  .score{ font-size:32px; }
+  .timer{ font-size:24px; }
+  .boardWrap{
+    padding: 10px;
+    border-radius: 12px;
+  }
+  .instructions{
+    margin: 8px auto 0;
+    font-size:12.5px;
+    line-height:1.35;
+  }
+}
+
 @media (max-width:520px){
-  .toggle{ top:8px; right:10px; font-size:12px; gap:8px; }
+  .toggle{ top: calc(52px + env(safe-area-inset-top, 0px)); right:8px; font-size:11px; gap:6px; }
   .switch{ width:64px; height:30px; }
   .switch::after{ width:24px; height:24px; }
   .switch.on::after{ transform:translateX(34px); }
-  .level{ top:12px; left:10px; }
+  .level{ top: calc(56px + env(safe-area-inset-top, 0px)); left:8px; font-size:12px; }
+  .title{ top: calc(4px + env(safe-area-inset-top, 0px)); }
   .target{ font-size: 36px; }
-  .timer{ font-size:24px; }
-  .score{ font-size:30px; }
+  .timer{ font-size:22px; }
+  .score{ font-size:28px; }
 }
 @media (max-width:390px){
+  .app{
+    padding: calc(136px + env(safe-area-inset-top, 0px)) 8px 10px;
+  }
+  .modeLabel{ font-size:10px; }
+  .switch{ width:58px; height:28px; }
+  .switch::after{ width:22px; height:22px; }
+  .switch.on::after{ transform:translateX(30px); }
   .target{ font-size: 34px; }
+  .meta{ gap:8px; }
+  .timer{ font-size:20px; }
+  .score{ font-size:26px; }
+}
+@media (max-height:700px) and (orientation:landscape){
+  .app{
+    padding-top: calc(104px + env(safe-area-inset-top, 0px));
+  }
+  .title{
+    font-size: clamp(26px, 6vw, 38px);
+  }
+  .level{ top: calc(42px + env(safe-area-inset-top, 0px)); }
+  .toggle{ top: calc(38px + env(safe-area-inset-top, 0px)); }
 }
 
 .instructions{
