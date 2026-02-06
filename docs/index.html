@@ -7,6 +7,8 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='2' y='2' width='60' height='60' rx='10' fill='%230b0f14' stroke='%235a8dff' stroke-width='4'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-family='Menlo,Consolas,monospace' font-size='34' font-weight='700' fill='%235a8dff'%3EF%3C/text%3E%3C/svg%3E" />
 
 <style>
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100;200&family=Source+Code+Pro:wght@200&display=swap");
+
 :root{
   --bg:#0b0f14;
   --fg:#e7eef8;
@@ -24,8 +26,10 @@
   --cell: clamp(24px, calc((100vw - 92px) / var(--N)), 44px);
   --font: clamp(13px, calc(var(--cell) * 0.46), 20px);
 
-  /* Legible mono stack (non-bold) */
+  /* UI mono */
   --mono: Menlo, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  /* Ultra-thin matrix stack */
+  --matrix: "Roboto Mono", "Source Code Pro", Menlo, Monaco, Consolas, monospace;
 }
 
 *{ box-sizing:border-box; }
@@ -115,33 +119,47 @@ body{
   z-index: 20;
   display:flex;
   align-items:center;
-  gap:6px;
+  gap:10px;
   font-family:var(--mono);
-  font-size:12px;
+  font-size:14px;
+  font-weight:700;
   color:var(--muted);
   user-select:none;
 }
+.modeLabel{
+  letter-spacing:.35px;
+  opacity:.55;
+  transition:opacity .16s ease, color .16s ease;
+}
+.toggle.easy .modeLabel.easy{
+  opacity:1;
+  color:#8ae9b7;
+}
+.toggle.hard .modeLabel.hard{
+  opacity:1;
+  color:#ffb18f;
+}
 .switch{
-  width:42px;
-  height:22px;
+  width:74px;
+  height:34px;
   border-radius:999px;
   border:1px solid var(--gridline);
   position:relative;
   cursor:pointer;
-  background: rgba(255,255,255,.03);
+  background: rgba(255,255,255,.05);
 }
 .switch::after{
   content:"";
-  width:18px;
-  height:18px;
+  width:28px;
+  height:28px;
   border-radius:50%;
   background:#fff;
   position:absolute;
-  top:1px;
-  left:1px;
+  top:2px;
+  left:2px;
   transition:transform .16s ease;
 }
-.switch.on::after{ transform:translateX(20px); }
+.switch.on::after{ transform:translateX(40px); }
 
 /* Target in the middle */
 .targetWrap{
@@ -221,8 +239,8 @@ body{
   touch-action:none;
   background-color: rgba(255,255,255,.02);
   background-image:
-    linear-gradient(45deg, rgba(255,255,255,.020) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.020) 75%, rgba(255,255,255,.020)),
-    linear-gradient(45deg, rgba(255,255,255,.020) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.020) 75%, rgba(255,255,255,.020));
+    linear-gradient(45deg, rgba(255,255,255,.042) 25%, rgba(255,255,255,.010) 25%, rgba(255,255,255,.010) 75%, rgba(255,255,255,.042) 75%, rgba(255,255,255,.042)),
+    linear-gradient(45deg, rgba(255,255,255,.042) 25%, rgba(255,255,255,.010) 25%, rgba(255,255,255,.010) 75%, rgba(255,255,255,.042) 75%, rgba(255,255,255,.042));
   background-size: calc(var(--cell) * 2) calc(var(--cell) * 2);
   background-position: 0 0, var(--cell) var(--cell);
 }
@@ -233,11 +251,16 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  font-family:var(--mono);
+  font-family:var(--matrix);
   font-size:var(--font);
-  font-weight:300;
+  font-weight:100;
+  font-optical-sizing: auto;
+  font-synthesis-weight: none;
   font-variant-numeric: tabular-nums;
-  letter-spacing:.12px;
+  letter-spacing:.08px;
+  color: rgba(242,248,255,.98);
+  font-stretch: condensed;
+  text-rendering: optimizeLegibility;
   border-right:1px solid var(--gridline);
   border-bottom:1px solid var(--gridline);
   cursor:pointer;          /* pointer cursor */
@@ -255,13 +278,19 @@ body{
   box-shadow: inset 0 0 0 1px rgba(255,208,90,.5);
 }
 
-/* Success path evaporates before refill */
-.cell.evaporate{
-  animation: evaporate .42s ease-in forwards;
+.cell.turnBlast{
+  animation: turnBlast .3s ease-in forwards;
 }
-@keyframes evaporate{
-  from { transform: scale(1); opacity: 1; filter: saturate(1); }
-  to   { transform: scale(.72); opacity: 0; filter: saturate(.5); }
+@keyframes turnBlast{
+  from { transform: translateY(0) rotate(0) scale(1); opacity:1; }
+  to   { transform: translateY(var(--yj)) rotate(var(--rj)) scale(1.16); opacity:0; }
+}
+.cell.slot{
+  animation: slot .26s ease-out forwards;
+}
+@keyframes slot{
+  from { transform: translateY(-42%) scaleY(1.18); filter: blur(1.4px); opacity:.46; }
+  to   { transform: translateY(0) scaleY(1); filter: blur(0); opacity:1; }
 }
 
 /* Board explode/assemble */
@@ -305,7 +334,10 @@ body{
 
 /* Responsive */
 @media (max-width:520px){
-  .toggle{ top:8px; right:10px; }
+  .toggle{ top:8px; right:10px; font-size:12px; gap:8px; }
+  .switch{ width:64px; height:30px; }
+  .switch::after{ width:24px; height:24px; }
+  .switch.on::after{ transform:translateX(34px); }
   .level{ top:12px; left:10px; }
   .target{ font-size: 36px; }
   .timer{ font-size:24px; }
@@ -331,10 +363,10 @@ body{
   <div class="top">
     <div class="title">Hex Fiend</div>
     <div class="level" id="levelLabel">Level 1</div>
-    <div class="toggle" title="9 = decimal, F = hex">
-      <span>9</span>
+    <div class="toggle easy" id="modeToggle" title="Left EASY, right HARD">
+      <span class="modeLabel easy">EASY</span>
       <div class="switch" id="mode"></div>
-      <span>F</span>
+      <span class="modeLabel hard">HARD</span>
     </div>
   </div>
 
@@ -370,13 +402,12 @@ body{
   const ROUND_SECONDS = 30.0;
   const LEVEL_STEP_POINTS = 100; // Level 2 at 100, Level 3 at 200, etc.
 
-  function randHexChar(){ return HEX[(Math.random()*16)|0]; }
   function inBounds(r,c,N){ return r>=0 && c>=0 && r<N && c<N; }
 
   // Level config: hidden selection length (K) + board size
   function KForLevel(level){
-    // grows gently: 1,2,2,3,3,4,4,5...
-    return Math.min(7, 1 + Math.floor(level/2));
+    // make difficulty direct: level N => N-digit targets (capped)
+    return Math.min(7, Math.max(1, level));
   }
   function NForLevel(level){
     const k = KForLevel(level);
@@ -391,6 +422,7 @@ body{
   const elScore  = document.getElementById("score");
   const elTime   = document.getElementById("time");
   const elMode   = document.getElementById("mode");
+  const elToggle = document.getElementById("modeToggle");
   const elLevel  = document.getElementById("levelLabel");
 
   // State
@@ -405,6 +437,7 @@ body{
   // Guaranteed solution (for solvability); user can match ANY selection that equals the target
   let chosenSolution = []; // [{r,c}...]
   let chosenHex = "";
+  let chosenDec = "";
   let targetValue = 0;
 
   // Interaction
@@ -418,9 +451,31 @@ body{
   let timerId = null;
   let hintId = null;
   let tableMode = "dec";
+  const secureCrypto = globalThis.crypto;
 
   function sleep(ms){
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  function assertSecureRng(){
+    if(!secureCrypto || typeof secureCrypto.getRandomValues !== "function"){
+      throw new Error("Secure RNG unavailable: crypto.getRandomValues is required.");
+    }
+  }
+  function secureUint32(){
+    const a = new Uint32Array(1);
+    secureCrypto.getRandomValues(a);
+    return a[0];
+  }
+  function randInt(maxExclusive){
+    if(maxExclusive <= 0) return 0;
+    const full = 0x100000000;
+    const limit = Math.floor(full / maxExclusive) * maxExclusive;
+    let x = 0;
+    do { x = secureUint32(); } while(x >= limit);
+    return x % maxExclusive;
+  }
+  function randIntRange(minInclusive, maxInclusive){
+    return minInclusive + randInt((maxInclusive - minInclusive + 1));
   }
 
   function boardAlphabet(){
@@ -428,7 +483,7 @@ body{
   }
   function randBoardChar(){
     const alpha = boardAlphabet();
-    return alpha[(Math.random()*alpha.length)|0];
+    return alpha[randInt(alpha.length)];
   }
   function pathValueFromString(s){
     if(!s) return NaN;
@@ -437,7 +492,13 @@ body{
   function syncModes(nextMode){
     mode = nextMode;
     tableMode = (mode === "hex") ? "dec" : "hex";
-    elMode.classList.toggle("on", mode === "hex");
+    const hard = (mode === "dec");
+    elMode.classList.toggle("on", hard);
+    elToggle.classList.toggle("hard", hard);
+    elToggle.classList.toggle("easy", !hard);
+  }
+  function targetText(){
+    return (mode === "hex") ? ("0x" + chosenHex) : chosenDec;
   }
   function rebuildRoundForModeSwitch(){
     dragging = false;
@@ -463,7 +524,7 @@ body{
     // animate in each time we set a new target
     elTarget.classList.remove("in","out","fail","success");
     elTarget.style.color = "";
-    elTarget.textContent = (mode === "hex") ? ("0x" + chosenHex) : String(targetValue);
+    elTarget.textContent = targetText();
     // kick in animation
     void elTarget.offsetWidth;
     elTarget.classList.add("in");
@@ -471,6 +532,12 @@ body{
 
   function displayForCell(hexDigit){
     return (tableMode === "dec") ? String(hexDigit) : hexDigit;
+  }
+  function targetFitsMode(v){
+    if(!Number.isFinite(v) || v < 0) return false;
+    const max = (mode === "dec") ? ((10 ** K) - 1) : ((16 ** K) - 1);
+    const min = (K <= 1) ? 0 : ((mode === "dec") ? (10 ** (K - 1)) : (16 ** (K - 1)));
+    return v >= min && v <= max;
   }
 
   function waitAnim(el){
@@ -503,9 +570,9 @@ body{
         if(withAssemble){
           // start from scattered positions
           d.classList.add("assemble");
-          d.style.setProperty("--tx", ((Math.random()*2-1)*220).toFixed(0)+"px");
-          d.style.setProperty("--ty", ((Math.random()*2-1)*220).toFixed(0)+"px");
-          d.style.setProperty("--rot", ((Math.random()*2-1)*40).toFixed(0)+"deg");
+          d.style.setProperty("--tx", randIntRange(-220,220) + "px");
+          d.style.setProperty("--ty", randIntRange(-220,220) + "px");
+          d.style.setProperty("--rot", randIntRange(-40,40) + "deg");
         }
 
         elGrid.appendChild(d);
@@ -522,15 +589,15 @@ body{
   }
 
   function clearAllMarks(){
-    ["drag","ok","bad","reveal","hint","evaporate"].forEach(clearMarks);
+    ["drag","ok","bad","reveal","hint","turnBlast","slot"].forEach(clearMarks);
   }
 
   // ---------- Target picking ----------
   function pickSolvableTarget(){
     for(let tries=0; tries<8000; tries++){
-      const r0 = (Math.random()*N)|0;
-      const c0 = (Math.random()*N)|0;
-      const [dx,dy] = DIRS[(Math.random()*DIRS.length)|0];
+      const r0 = randInt(N);
+      const c0 = randInt(N);
+      const [dx,dy] = DIRS[randInt(DIRS.length)];
 
       const rEnd = r0 + dy*(K-1);
       const cEnd = c0 + dx*(K-1);
@@ -549,9 +616,11 @@ body{
       const v = pathValueFromString(s);
       if(!Number.isFinite(v)) continue;
       if(level === 1 && v > 40) continue; // makes L1 feel faster/cleaner
+      if(!targetFitsMode(v)) continue;
 
       chosenSolution = cells;
       chosenHex = v.toString(16).toUpperCase();
+      chosenDec = String(v);
       targetValue = v;
       renderTarget();
       return;
@@ -562,6 +631,7 @@ body{
     const fallbackS = grid[0][0];
     targetValue = pathValueFromString(fallbackS) || 0;
     chosenHex = targetValue.toString(16).toUpperCase();
+    chosenDec = String(targetValue);
     renderTarget();
   }
 
@@ -624,14 +694,6 @@ body{
     }
   }
 
-  function refillPath(path){
-    for(const {r,c} of path){
-      grid[r][c] = randBoardChar();
-      const ce = cellEl(r,c);
-      if(ce) ce.textContent = displayForCell(grid[r][c]);
-    }
-  }
-
   // ---------- Animations / FX ----------
   function spawnSparks(){
     // small golden burst around target
@@ -643,8 +705,8 @@ body{
     for(let i=0;i<14;i++){
       const sp = document.createElement("div");
       sp.className = "spark";
-      const a = (Math.random()*360)|0;
-      const dist = 30 + Math.random()*44;
+      const a = randInt(360);
+      const dist = randIntRange(30,74);
       const dx = Math.cos(a*Math.PI/180) * dist;
       const dy = Math.sin(a*Math.PI/180) * dist;
       sp.style.left = (cx|0) + "px";
@@ -675,9 +737,9 @@ body{
     const cells = [...elGrid.querySelectorAll(".cell")];
     cells.forEach(c => {
       c.classList.remove("assemble");
-      c.style.setProperty("--tx", ((Math.random()*2-1)*260).toFixed(0)+"px");
-      c.style.setProperty("--ty", ((Math.random()*2-1)*260).toFixed(0)+"px");
-      c.style.setProperty("--rot", ((Math.random()*2-1)*60).toFixed(0)+"deg");
+      c.style.setProperty("--tx", randIntRange(-260,260) + "px");
+      c.style.setProperty("--ty", randIntRange(-260,260) + "px");
+      c.style.setProperty("--rot", randIntRange(-60,60) + "deg");
       c.classList.add("explode");
     });
 
@@ -685,16 +747,39 @@ body{
     await new Promise(r => setTimeout(r, 380));
   }
 
-  async function evaporatePath(path){
-    const elems = [];
-    for(const {r,c} of path){
-      const ce = cellEl(r,c);
+  async function explodeAndSlotPath(path){
+    const targets = [];
+    for(const pt of path){
+      const ce = cellEl(pt.r, pt.c);
       if(!ce) continue;
-      ce.classList.add("evaporate");
-      elems.push(ce);
+      targets.push({ ...pt, ce });
     }
-    await sleep(430);
-    elems.forEach(ce => ce.classList.remove("evaporate"));
+    if(!targets.length) return;
+
+    for(const t of targets){
+      t.ce.classList.remove("turnBlast", "slot");
+      t.ce.style.setProperty("--rj", randIntRange(-15,15) + "deg");
+      t.ce.style.setProperty("--yj", randIntRange(8,24) + "px");
+      void t.ce.offsetWidth;
+      t.ce.classList.add("turnBlast");
+    }
+    await sleep(310);
+
+    for(const t of targets){
+      t.ce.classList.remove("turnBlast","drag","ok","bad","reveal","hint");
+      t.ce.classList.add("slot");
+    }
+    for(let i=0;i<6;i++){
+      for(const t of targets){
+        grid[t.r][t.c] = randBoardChar();
+        t.ce.textContent = displayForCell(grid[t.r][t.c]);
+      }
+      await sleep(54);
+    }
+    await sleep(150);
+    for(const t of targets){
+      t.ce.classList.remove("slot");
+    }
   }
 
   async function revealSolutionOrdered(holdMs=3000, stepMs=220){
@@ -769,9 +854,8 @@ body{
     // target exits right
     await targetExitRight();
 
-    // evaporate then randomize matched path
-    await evaporatePath(path);
-    refillPath(path);
+    // explode used cells, then slot-in new values
+    await explodeAndSlotPath(path);
     clearAllMarks();
 
     // level-up check + board rebuild animation if needed
@@ -802,8 +886,8 @@ body{
     clearAllMarks();
     await revealSolutionOrdered(3000, 220);
 
-    // keep same level/points, new target anyway (keeps flow)
-    refillPath(chosenSolution);
+    // explode revealed truth path, then slot-in new values
+    await explodeAndSlotPath(chosenSolution);
     clearAllMarks();
     pickSolvableTarget();
     locked = false;
@@ -818,7 +902,7 @@ body{
     await revealSolutionOrdered(1700, 200);
     await targetFailFall(); // same “fall” on timeout feels consistent
 
-    refillPath(chosenSolution);
+    await explodeAndSlotPath(chosenSolution);
     clearAllMarks();
 
     pickSolvableTarget();
@@ -893,7 +977,7 @@ body{
   }
 
   // ---------- Toggle ----------
-  elMode.addEventListener("click", () => {
+  elToggle.addEventListener("click", () => {
     if(locked) return;
     syncModes((mode === "dec") ? "hex" : "dec");
     rebuildRoundForModeSwitch();
@@ -917,6 +1001,7 @@ body{
     N = NForLevel(level);
     K = KForLevel(level);
 
+    assertSecureRng();
     syncModes(mode);
     buildGrid(true); // assemble on load is nice
     updateTopUI();
