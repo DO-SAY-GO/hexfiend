@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Daily Slam IQ Trainer</title>
+<style>
+:root{
+  --bg:#0a0f16;
+  --panel:#101827;
+  --ink:#e8eef8;
+  --muted:#9cb1cc;
+  --line:rgba(255,255,255,.14);
+  --accent:#6dd4ff;
+  --ok:#6ff0ad;
+  --bad:#ff8ea8;
+}
+
+*{ box-sizing:border-box; }
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(1000px 600px at 15% -10%, rgba(109,212,255,.14), transparent 55%),
+    radial-gradient(900px 560px at 85% -20%, rgba(86,120,255,.10), transparent 58%),
+    var(--bg);
+}
+
+.app{
+  width:min(980px, 100%);
+  margin:0 auto;
+  padding:18px 14px 24px;
+}
+
+.hero{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:14px;
+}
+.title{
+  margin:0;
+  font-size:clamp(30px, 5.6vw, 56px);
+  letter-spacing:.4px;
+  line-height:.95;
+}
+.sub{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.panel{
+  background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px;
+}
+
+.controls{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap:10px;
+  align-items:end;
+}
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.label{
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.2px;
+}
+select, input[type="range"], button{
+  width:100%;
+}
+select, .btn{
+  background:#111d30;
+  color:var(--ink);
+  border:1px solid var(--line);
+  border-radius:10px;
+  height:38px;
+  padding:0 11px;
+  font:inherit;
+}
+.btn{
+  cursor:pointer;
+  font-weight:700;
+}
+.btn:hover{ border-color:rgba(109,212,255,.4); }
+.btn.primary{
+  background:linear-gradient(180deg, #15435d, #102f45);
+}
+.btn.next{
+  background:linear-gradient(180deg, #17462f, #113324);
+}
+
+.stats{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap:8px;
+}
+.kpi{
+  background:#0f1a2b;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px;
+}
+.kpi .k{ font-size:11px; color:var(--muted); }
+.kpi .v{ margin-top:4px; font-weight:800; font-size:18px; }
+
+.play{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns: minmax(270px, 1fr) minmax(250px, 320px);
+  gap:12px;
+}
+
+.prompt{
+  margin:0 0 8px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+.matrix{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  border:2px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+}
+.cell{
+  min-height:96px;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-family:"Roboto Mono", "SF Mono", Menlo, monospace;
+  font-weight:400;
+  font-size:clamp(20px, 3vw, 30px);
+  letter-spacing:.3px;
+  white-space:pre-line;
+  line-height:1.1;
+  background:
+    linear-gradient(45deg, rgba(255,255,255,.040) 25%, rgba(255,255,255,.010) 25%, rgba(255,255,255,.010) 75%, rgba(255,255,255,.040) 75%, rgba(255,255,255,.040)),
+    linear-gradient(45deg, rgba(255,255,255,.040) 25%, rgba(255,255,255,.010) 25%, rgba(255,255,255,.010) 75%, rgba(255,255,255,.040) 75%, rgba(255,255,255,.040));
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+}
+.cell:nth-child(3n){ border-right:none; }
+.cell:nth-last-child(-n+3){ border-bottom:none; }
+.cell.miss{
+  color:#ffd589;
+  font-size:40px;
+}
+
+.options{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:8px;
+}
+.opt{
+  min-height:70px;
+  background:#0f1b2c;
+  border:1px solid var(--line);
+  border-radius:10px;
+  color:var(--ink);
+  font-family:"Roboto Mono", "SF Mono", Menlo, monospace;
+  font-size:22px;
+  white-space:pre-line;
+  cursor:pointer;
+}
+.opt.correct{
+  border-color:rgba(111,240,173,.75);
+  background:rgba(111,240,173,.14);
+}
+.opt.wrong{
+  border-color:rgba(255,142,168,.75);
+  background:rgba(255,142,168,.12);
+}
+.opt:disabled{
+  cursor:default;
+  opacity:.95;
+}
+
+.explain{
+  margin-top:10px;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#0f1a2b;
+}
+.explain.good{ border-color:rgba(111,240,173,.45); }
+.explain.bad{ border-color:rgba(255,142,168,.45); }
+.explain .head{
+  font-weight:800;
+  margin-bottom:6px;
+}
+.explain .txt{
+  font-size:13px;
+  color:#d7e4f5;
+  white-space:pre-wrap;
+}
+
+.footer{
+  margin-top:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.hint{
+  font-size:12px;
+  color:var(--muted);
+}
+
+@media (max-width:840px){
+  .controls{ grid-template-columns: 1fr 1fr; }
+  .play{ grid-template-columns: 1fr; }
+}
+@media (max-width:520px){
+  .app{ padding:12px 10px 20px; }
+  .hero{ margin-bottom:10px; }
+  .sub{ font-size:12px; }
+  .stats{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cell{ min-height:80px; font-size:24px; }
+  .opt{ min-height:62px; font-size:20px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <div>
+      <h1 class="title">Daily Slam</h1>
+      <p class="sub">Pattern reasoning trainer. Easy to brutal. Explanation every round.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="controls">
+      <label class="field">
+        <span class="label">Mode</span>
+        <select id="mode">
+          <option value="daily">Daily Slam (1-10 spectrum)</option>
+          <option value="practice">Practice (fixed difficulty)</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="label">Difficulty: <span id="diffLabel">5</span></span>
+        <input id="difficulty" type="range" min="1" max="10" step="1" value="5" />
+      </label>
+
+      <button class="btn primary" id="newSet">Start Fresh Set</button>
+    </div>
+
+    <div class="stats">
+      <div class="kpi"><div class="k">Question</div><div class="v" id="qNum">1 / 12</div></div>
+      <div class="kpi"><div class="k">Current Diff</div><div class="v" id="qDiff">5</div></div>
+      <div class="kpi"><div class="k">Accuracy</div><div class="v" id="acc">0%</div></div>
+      <div class="kpi"><div class="k">Streak</div><div class="v" id="streak">0</div></div>
+      <div class="kpi"><div class="k">Solved</div><div class="v" id="solved">0</div></div>
+    </div>
+  </section>
+
+  <section class="play">
+    <div class="panel">
+      <p class="prompt" id="prompt">Find the rule and choose the missing bottom-right cell.</p>
+      <div class="matrix" id="matrix"></div>
+      <div class="footer">
+        <div class="hint">Keys: <code>1-6</code> choose option, <code>N</code> next</div>
+        <button class="btn next" id="nextBtn" disabled>Next Puzzle</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="options" id="options"></div>
+      <div class="explain" id="explain" hidden>
+        <div class="head" id="explainHead"></div>
+        <div class="txt" id="explainTxt"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const SHAPES = [
+    ["△","▲"], ["□","■"], ["○","●"], ["◇","◆"]
+  ];
+  const DIR4 = ["↑","→","↓","←"];
+  const ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const TOTAL_DAILY = 12;
+
+  const elMode = document.getElementById("mode");
+  const elDifficulty = document.getElementById("difficulty");
+  const elDiffLabel = document.getElementById("diffLabel");
+  const elNewSet = document.getElementById("newSet");
+  const elMatrix = document.getElementById("matrix");
+  const elOptions = document.getElementById("options");
+  const elNextBtn = document.getElementById("nextBtn");
+  const elExplain = document.getElementById("explain");
+  const elExplainHead = document.getElementById("explainHead");
+  const elExplainTxt = document.getElementById("explainTxt");
+  const elQNum = document.getElementById("qNum");
+  const elQDiff = document.getElementById("qDiff");
+  const elAcc = document.getElementById("acc");
+  const elStreak = document.getElementById("streak");
+  const elSolved = document.getElementById("solved");
+
+  const state = {
+    mode: "daily",
+    practiceDifficulty: 5,
+    dailySeq: [],
+    dailyIndex: 0,
+    answered: 0,
+    correct: 0,
+    streak: 0,
+    solved: 0,
+    puzzle: null,
+    canAnswer: true,
+  };
+
+  const secureCrypto = globalThis.crypto;
+  function assertRng(){
+    if(!secureCrypto || typeof secureCrypto.getRandomValues !== "function"){
+      throw new Error("Secure RNG unavailable");
+    }
+  }
+  function randU32(){
+    const a = new Uint32Array(1);
+    secureCrypto.getRandomValues(a);
+    return a[0];
+  }
+  function randInt(maxExclusive){
+    if(maxExclusive <= 0) return 0;
+    const full = 0x100000000;
+    const limit = Math.floor(full / maxExclusive) * maxExclusive;
+    let x;
+    do { x = randU32(); } while(x >= limit);
+    return x % maxExclusive;
+  }
+  function randRange(min, max){
+    return min + randInt(max - min + 1);
+  }
+  function sample(arr){
+    return arr[randInt(arr.length)];
+  }
+  function shuffle(arr){
+    for(let i=arr.length-1; i>0; i--){
+      const j = randInt(i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function bullets(n){
+    return "•".repeat(Math.max(1, Math.min(9, n)));
+  }
+  function maskToText(mask){
+    const bits = [8,4,2,1].map(b => (mask & b) ? "■" : "·");
+    return `${bits[0]} ${bits[1]}\n${bits[2]} ${bits[3]}`;
+  }
+  function uniqueOptions(answer, candidateFactory){
+    const set = new Set([answer]);
+    let guard = 0;
+    while(set.size < 6 && guard < 300){
+      set.add(candidateFactory());
+      guard++;
+    }
+    const out = [...set].slice(0,6);
+    return shuffle(out);
+  }
+  function mkPuzzle(diff, grid, answer, options, explain){
+    return { diff, grid, answer, options, explain };
+  }
+
+  function genCount(diff){
+    let start = randRange(1, 3);
+    let dc = randRange(1, Math.min(3, 1 + Math.floor(diff/3)));
+    let dr = randRange(1, Math.min(2, 1 + Math.floor(diff/5)));
+    while(start + 2*dc + 2*dr > 9){
+      start = randRange(1, 3);
+      dc = randRange(1, 2);
+      dr = randRange(1, 2);
+    }
+    const g = [[],[],[]];
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        const v = start + r*dr + c*dc;
+        g[r][c] = bullets(v);
+      }
+    }
+    const answer = g[2][2];
+    g[2][2] = "?";
+    const av = start + 2*dr + 2*dc;
+    const options = uniqueOptions(answer, () => bullets(Math.max(1, Math.min(9, av + randRange(-3, 3)))));
+    const explain =
+`Rule:
+- Move right: add ${dc}.
+- Move down: add ${dr}.
+So bottom-right is ${av}, which is ${answer}.`;
+    return mkPuzzle(diff, g, answer, options, explain);
+  }
+
+  function genRotation(diff){
+    const rowStep = randRange(1, 2);
+    const colStep = randRange(1, 3);
+    const base = randInt(4);
+    const g = [[],[],[]];
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        const idx = (base + r*rowStep + c*colStep) % 4;
+        g[r][c] = DIR4[idx];
+      }
+    }
+    const answer = g[2][2];
+    g[2][2] = "?";
+    const options = uniqueOptions(answer, () => sample(DIR4));
+    const explain =
+`Rule:
+- Each step right rotates by ${colStep * 90} degrees.
+- Each step down rotates by ${rowStep * 90} degrees.
+Applying both gives ${answer}.`;
+    return mkPuzzle(diff, g, answer, options, explain);
+  }
+
+  function genShapeFill(diff){
+    const base = randInt(SHAPES.length);
+    const phase = randInt(2);
+    const g = [[],[],[]];
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        const s = (base + r + c) % SHAPES.length;
+        const fill = ((r + c + phase) % 2);
+        g[r][c] = SHAPES[s][fill];
+      }
+    }
+    const answer = g[2][2];
+    g[2][2] = "?";
+    const options = uniqueOptions(answer, () => {
+      const s = randInt(SHAPES.length);
+      const fill = randInt(2);
+      return SHAPES[s][fill];
+    });
+    const explain =
+`Rule:
+- Shape cycles one step each move right/down.
+- Fill alternates like a checkerboard.
+Following both rules lands on ${answer}.`;
+    return mkPuzzle(diff, g, answer, options, explain);
+  }
+
+  function genDual(diff){
+    let base = randInt(SHAPES.length);
+    let countBase = randRange(1, 3);
+    const dc = randRange(1, 2);
+    const dr = randRange(1, 2);
+    while(countBase + 2*dc + 2*dr > 9){
+      countBase = randRange(1, 3);
+    }
+    const g = [[],[],[]];
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        const s = (base + r + c) % SHAPES.length;
+        const fill = (r + c) % 2;
+        const n = countBase + r*dr + c*dc;
+        g[r][c] = `${SHAPES[s][fill]}${n}`;
+      }
+    }
+    const answer = g[2][2];
+    g[2][2] = "?";
+    const options = uniqueOptions(answer, () => {
+      const s = randInt(SHAPES.length);
+      const fill = randInt(2);
+      const n = randRange(1, 9);
+      return `${SHAPES[s][fill]}${n}`;
+    });
+    const explain =
+`Two simultaneous rules:
+- Symbol cycles by one each move right/down.
+- Number increases by +${dc} right and +${dr} down.
+The combined target is ${answer}.`;
+    return mkPuzzle(diff, g, answer, options, explain);
+  }
+
+  function genMaskXor(diff){
+    const rows = [];
+    for(let r=0;r<3;r++){
+      const a = randRange(0, 15);
+      const b = randRange(0, 15);
+      rows.push([a, b, a ^ b]);
+    }
+    const g = rows.map(row => row.map(maskToText));
+    const answer = g[2][2];
+    g[2][2] = "?";
+    const ansMask = rows[2][2];
+    const options = uniqueOptions(answer, () => maskToText(ansMask ^ (1 << randInt(4)) ^ (randInt(2) ? (1 << randInt(4)) : 0)));
+    const explain =
+`Rule:
+- In each row, third cell = XOR(first, second).
+- XOR keeps bits that differ and cancels bits that match.
+So row 3 col 3 is ${answer.replace("\n"," / ")}.`;
+    return mkPuzzle(diff, g, answer, options, explain);
+  }
+
+  function genUltra(diff){
+    const baseL = randInt(18);
+    const baseN = randInt(10);
+    const stepLx = randRange(1, 4);
+    const stepLy = randRange(1, 3);
+    const stepNx = randRange(2, 5);
+    const stepNy = randRange(1, 4);
+    const g = [[],[],[]];
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        const li = (baseL + r*stepLy + c*stepLx) % ALPHA.length;
+        const n = (baseN + r*stepNy + c*stepNx) % 10;
+        g[r][c] = `${ALPHA[li]}${n}`;
+      }
+    }
+    const answer = g[2][2];
+    g[2][2] = "?";
+    const options = uniqueOptions(answer, () => `${ALPHA[randInt(ALPHA.length)]}${randInt(10)}`);
+    const explain =
+`Hard dual-cycle rule:
+- Letter advances +${stepLx} across, +${stepLy} down.
+- Digit advances +${stepNx} across, +${stepNy} down (mod 10).
+Apply both at row 3 col 3 => ${answer}.`;
+    return mkPuzzle(diff, g, answer, options, explain);
+  }
+
+  function generatePuzzle(diff){
+    if(diff <= 2) return sample([genCount, genRotation])(diff);
+    if(diff <= 4) return sample([genRotation, genShapeFill, genCount])(diff);
+    if(diff <= 6) return sample([genShapeFill, genDual])(diff);
+    if(diff <= 8) return sample([genDual, genMaskXor])(diff);
+    return sample([genMaskXor, genUltra])(diff);
+  }
+
+  function buildDailySequence(){
+    const seq = [1,2,3,4,5,6,7,8,9,10, randRange(1,10), randRange(1,10)];
+    return shuffle(seq);
+  }
+
+  function currentDiff(){
+    if(state.mode === "practice") return state.practiceDifficulty;
+    return state.dailySeq[state.dailyIndex] ?? state.dailySeq[state.dailySeq.length - 1];
+  }
+
+  function updateStats(){
+    const maxQ = (state.mode === "daily") ? TOTAL_DAILY : "inf";
+    const q = (state.mode === "daily") ? `${state.dailyIndex + 1} / ${TOTAL_DAILY}` : `${state.answered + 1} / ${maxQ}`;
+    const acc = state.answered ? Math.round((state.correct / state.answered) * 100) : 0;
+    elQNum.textContent = q;
+    elQDiff.textContent = String(currentDiff());
+    elAcc.textContent = `${acc}%`;
+    elStreak.textContent = String(state.streak);
+    elSolved.textContent = String(state.solved);
+  }
+
+  function renderMatrix(p){
+    elMatrix.innerHTML = "";
+    for(let r=0;r<3;r++){
+      for(let c=0;c<3;c++){
+        const d = document.createElement("div");
+        d.className = "cell";
+        const txt = p.grid[r][c];
+        if(txt === "?") d.classList.add("miss");
+        d.textContent = txt;
+        elMatrix.appendChild(d);
+      }
+    }
+  }
+
+  function renderOptions(p){
+    elOptions.innerHTML = "";
+    p.options.forEach((opt, i) => {
+      const b = document.createElement("button");
+      b.className = "opt";
+      b.textContent = opt;
+      b.dataset.v = opt;
+      b.dataset.i = String(i + 1);
+      b.addEventListener("click", () => answer(opt, b));
+      elOptions.appendChild(b);
+    });
+  }
+
+  function resetExplain(){
+    elExplain.hidden = true;
+    elExplain.classList.remove("good", "bad");
+    elExplainHead.textContent = "";
+    elExplainTxt.textContent = "";
+  }
+
+  function showExplain(correct, chosen){
+    const p = state.puzzle;
+    elExplain.hidden = false;
+    elExplain.classList.toggle("good", correct);
+    elExplain.classList.toggle("bad", !correct);
+    elExplainHead.textContent = correct ? "Correct." : "Not this one.";
+    elExplainTxt.textContent =
+`Your pick: ${chosen}
+Correct answer: ${p.answer}
+
+${p.explain}`;
+  }
+
+  function markOptions(chosen){
+    const btns = [...elOptions.querySelectorAll(".opt")];
+    for(const b of btns){
+      b.disabled = true;
+      if(b.dataset.v === state.puzzle.answer) b.classList.add("correct");
+      if(b.dataset.v === chosen && chosen !== state.puzzle.answer) b.classList.add("wrong");
+    }
+  }
+
+  function answer(chosen, btn){
+    if(!state.canAnswer) return;
+    state.canAnswer = false;
+    const ok = (chosen === state.puzzle.answer);
+    state.answered++;
+    state.correct += ok ? 1 : 0;
+    state.streak = ok ? state.streak + 1 : 0;
+    state.solved += ok ? 1 : 0;
+    markOptions(chosen);
+    showExplain(ok, chosen);
+    elNextBtn.disabled = false;
+    updateStats();
+  }
+
+  function nextPuzzle(){
+    if(state.mode === "daily"){
+      if(state.dailyIndex < TOTAL_DAILY - 1){
+        state.dailyIndex++;
+      } else {
+        const acc = state.answered ? Math.round((state.correct / state.answered) * 100) : 0;
+        elExplain.hidden = false;
+        elExplain.classList.remove("good", "bad");
+        elExplainHead.textContent = "Daily Slam Complete";
+        elExplainTxt.textContent =
+`Score: ${state.correct}/${state.answered} (${acc}%)
+Streak ended at: ${state.streak}
+
+Click "Start Fresh Set" to run another full-spectrum slam.`;
+        elNextBtn.disabled = true;
+        updateStats();
+        return;
+      }
+    }
+    makePuzzle();
+  }
+
+  function makePuzzle(){
+    resetExplain();
+    state.canAnswer = true;
+    elNextBtn.disabled = true;
+    const d = currentDiff();
+    state.puzzle = generatePuzzle(d);
+    renderMatrix(state.puzzle);
+    renderOptions(state.puzzle);
+    updateStats();
+  }
+
+  function resetSet(){
+    state.answered = 0;
+    state.correct = 0;
+    state.streak = 0;
+    state.solved = 0;
+    if(state.mode === "daily"){
+      state.dailySeq = buildDailySequence();
+      state.dailyIndex = 0;
+    }
+    makePuzzle();
+  }
+
+  elMode.addEventListener("change", () => {
+    state.mode = elMode.value;
+    elDifficulty.disabled = (state.mode !== "practice");
+    resetSet();
+  });
+
+  elDifficulty.addEventListener("input", () => {
+    state.practiceDifficulty = Number(elDifficulty.value);
+    elDiffLabel.textContent = String(state.practiceDifficulty);
+    if(state.mode === "practice") makePuzzle();
+  });
+
+  elNewSet.addEventListener("click", resetSet);
+  elNextBtn.addEventListener("click", nextPuzzle);
+
+  window.addEventListener("keydown", (e) => {
+    if(e.key === "n" || e.key === "N"){
+      if(!elNextBtn.disabled) nextPuzzle();
+      return;
+    }
+    const n = Number(e.key);
+    if(Number.isInteger(n) && n >= 1 && n <= 6){
+      const btn = elOptions.querySelector(`.opt[data-i="${n}"]`);
+      if(btn && !btn.disabled) btn.click();
+    }
+  });
+
+  function boot(){
+    assertRng();
+    elDifficulty.disabled = true;
+    elDiffLabel.textContent = elDifficulty.value;
+    state.dailySeq = buildDailySequence();
+    makePuzzle();
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>
+

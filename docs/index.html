@@ -424,6 +424,18 @@ body{
   color: var(--muted);
   text-align: center;
 }
+.trainerLink{
+  display:inline-block;
+  margin-top:6px;
+  color:#8fd8ff;
+  text-decoration:none;
+  font-weight:700;
+  letter-spacing:.2px;
+}
+.trainerLink:hover{
+  color:#b4e9ff;
+  text-decoration:underline;
+}
 </style>
 </head>
 
@@ -431,7 +443,7 @@ body{
 <div class="app">
   <div class="top">
     <div class="title">Hex Fiend</div>
-    <div class="level" id="levelLabel">Level 1</div>
+    <div class="level" id="levelLabel">Level 2</div>
     <div class="toggle easy" id="modeToggle" title="Left EASY, right HARD">
       <span class="modeLabel easy">EASY</span>
       <div class="switch" id="mode"></div>
@@ -456,6 +468,7 @@ body{
   <div class="instructions">
     Select the square or pattern that represents the number.<br>
     Press H to see hint.
+    <br><a class="trainerLink" href="./daily-slam.html">Try Daily Slam IQ Trainer</a>
   </div>
 </div>
 
@@ -469,7 +482,8 @@ body{
   ];
 
   const ROUND_SECONDS = 30.0;
-  const LEVEL_STEP_POINTS = 100; // Level 2 at 100, Level 3 at 200, etc.
+  const START_LEVEL = 2;
+  const LEVEL_STEP_POINTS = 100; // +1 level per 100 points from START_LEVEL
 
   function inBounds(r,c,N){ return r>=0 && c>=0 && r<N && c<N; }
 
@@ -496,7 +510,7 @@ body{
 
   // State
   let mode = "hex"; // target display only
-  let level = 1;
+  let level = START_LEVEL;
   let points = 0;
 
   let N = NForLevel(level);
@@ -884,7 +898,7 @@ body{
 
   // ---------- Progression ----------
   function maybeLevelUp(){
-    const nextLevel = Math.floor(points / LEVEL_STEP_POINTS) + 1;
+    const nextLevel = START_LEVEL + Math.floor(points / LEVEL_STEP_POINTS);
     if(nextLevel <= level) return false;
 
     // level-up
