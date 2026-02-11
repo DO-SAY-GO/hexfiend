@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hex Fiend</title>
+<title>Hectic - Hexadecimal Crossword</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='2' y='2' width='60' height='60' rx='10' fill='%230b0f14' stroke='%235a8dff' stroke-width='4'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-family='Menlo,Consolas,monospace' font-size='34' font-weight='700' fill='%235a8dff'%3EF%3C/text%3E%3C/svg%3E" />
 
 <style>
@@ -62,6 +62,7 @@ body{
 
 .title{
   position: fixed;
+  text-align: center;
   top: 6px;
   left: 50%;
   transform: translateX(-50%);
@@ -74,6 +75,10 @@ body{
   text-shadow: 0 0 26px rgba(90,141,255,.22);
   pointer-events: none;
   user-select: none;
+}
+
+.title .by-line {
+  font-size: clamp(15px, 3vw, 26px);
 }
 
 .level{
@@ -442,7 +447,7 @@ body{
 <body>
 <div class="app">
   <div class="top">
-    <div class="title">Hex Fiend</div>
+    <div class="title">Hectic<br><span class=by-line>Hexadecimal Crossword</span></div>
     <div class="level" id="levelLabel">Level 2</div>
     <div class="toggle easy" id="modeToggle" title="Left EASY, right HARD">
       <span class="modeLabel easy">EASY</span>
